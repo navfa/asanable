@@ -28,3 +28,10 @@ class ItemSource(StrEnum):
 
 
 ASANA_NOTIFICATION_SENDER = "notifications@asana.com"
+
+GMAIL_SCOPE_READONLY = "https://www.googleapis.com/auth/gmail.readonly"
+GMAIL_USER_ME = "me"
+GMAIL_LABEL_UNREAD = "UNREAD"
+GMAIL_FORMAT_FULL = "full"
+
+ASANA_TASK_URL_PATTERN = r"app\.asana\.com/\d+/\d+/(\d+)"
