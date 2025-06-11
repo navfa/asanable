@@ -35,3 +35,11 @@ GMAIL_LABEL_UNREAD = "UNREAD"
 GMAIL_FORMAT_FULL = "full"
 
 ASANA_TASK_URL_PATTERN = r"app\.asana\.com/\d+/\d+/(\d+)"
+
+# Priority scores — higher = more urgent
+SCORE_OVERDUE = 100
+SCORE_TODAY = 80
+SCORE_THIS_WEEK = 60
+SCORE_UNREAD_EMAIL = 40
+SCORE_LATER = 20
+SCORE_NO_DATE = 10
