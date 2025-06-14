@@ -43,3 +43,19 @@ SCORE_THIS_WEEK = 60
 SCORE_UNREAD_EMAIL = 40
 SCORE_LATER = 20
 SCORE_NO_DATE = 10
+
+# CLI display styles per section
+SECTION_STYLES: dict[str, dict[str, str]] = {
+    "overdue": {"color": "red", "title": "Overdue", "icon": "!"},
+    "today": {"color": "yellow", "title": "Today", "icon": ">"},
+    "this_week": {"color": "blue", "title": "This Week", "icon": "-"},
+    "later": {"color": "dim", "title": "Later", "icon": " "},
+    "gmail": {"color": "green", "title": "Gmail", "icon": "@"},
+}
+
+COLUMN_TITLE = "Title"
+COLUMN_PROJECT = "Project"
+COLUMN_DUE = "Due"
+COLUMN_SOURCE = "Source"
+NO_DATE_LABEL = "-"
+NO_PROJECT_LABEL = "-"
