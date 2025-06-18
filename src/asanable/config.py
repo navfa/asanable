@@ -21,7 +21,10 @@ class Settings(BaseSettings):
     max_gmail_results: int = 20
     gmail_lookback_hours: int = 24
 
+    digest_email_to: str | None = None
+
     slack_webhook_url: str | None = None
+
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
 

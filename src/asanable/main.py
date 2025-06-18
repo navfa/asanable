@@ -10,7 +10,10 @@ def main() -> None:
     """Run the asanable daily digest."""
     args = _parse_args()
     try:
-        _run_digest(args)
+        if args.schedule:
+            _run_scheduler()
+        else:
+            _run_digest(args)
     except AsanableError as error:
         _handle_error(error)
 
@@ -69,7 +72,21 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="show summary only",
     )
+    parser.add_argument(
+        "-s", "--schedule",
+        action="store_true",
+        help="run as a daily scheduler",
+    )
     return parser.parse_args()
+
+
+def _run_scheduler() -> None:
+    """Start the daily digest scheduler."""
+    from asanable.config import Settings
+    from asanable.scheduler.cron import start_scheduler
+
+    settings = Settings()
+    start_scheduler(settings)
 
 
 def _handle_error(error: AsanableError) -> None:
