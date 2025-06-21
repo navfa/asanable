@@ -44,7 +44,9 @@ def _make_raw_task(
 
 class TestFetchMyTasks:
     @patch("asanable.clients.asana_client.asana")
-    def test_returns_domain_entities(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_returns_domain_entities(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         raw = _make_raw_task()
         mock_tasks_api = MagicMock()
         mock_tasks_api.get_tasks.return_value = [raw]
@@ -63,7 +65,9 @@ class TestFetchMyTasks:
         assert tasks[0].section_name == "To Do"
 
     @patch("asanable.clients.asana_client.asana")
-    def test_handles_task_without_due_date(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_handles_task_without_due_date(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         raw = _make_raw_task(due_on=None)
         mock_tasks_api = MagicMock()
         mock_tasks_api.get_tasks.return_value = [raw]
@@ -78,7 +82,9 @@ class TestFetchMyTasks:
         assert tasks[0].is_overdue is False
 
     @patch("asanable.clients.asana_client.asana")
-    def test_handles_task_without_memberships(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_handles_task_without_memberships(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         raw = _make_raw_task()
         raw["memberships"] = []
         mock_tasks_api = MagicMock()
@@ -94,7 +100,9 @@ class TestFetchMyTasks:
         assert tasks[0].section_name is None
 
     @patch("asanable.clients.asana_client.asana")
-    def test_empty_workspace_returns_empty_list(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_empty_workspace_returns_empty_list(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         mock_tasks_api = MagicMock()
         mock_tasks_api.get_tasks.return_value = []
         mock_asana_module.TasksApi.return_value = mock_tasks_api
@@ -109,7 +117,9 @@ class TestFetchMyTasks:
 
 class TestErrorHandling:
     @patch("asanable.clients.asana_client.asana")
-    def test_auth_error_raises_asana_auth_error(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_auth_error_raises_asana_auth_error(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         mock_tasks_api = MagicMock()
         mock_tasks_api.get_tasks.side_effect = ApiException(status=401, reason="Unauthorized")
         mock_asana_module.TasksApi.return_value = mock_tasks_api
@@ -122,7 +132,9 @@ class TestErrorHandling:
             client.fetch_my_tasks()
 
     @patch("asanable.clients.asana_client.asana")
-    def test_forbidden_raises_asana_auth_error(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_forbidden_raises_asana_auth_error(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         mock_tasks_api = MagicMock()
         mock_tasks_api.get_tasks.side_effect = ApiException(status=403, reason="Forbidden")
         mock_asana_module.TasksApi.return_value = mock_tasks_api
@@ -135,7 +147,9 @@ class TestErrorHandling:
             client.fetch_my_tasks()
 
     @patch("asanable.clients.asana_client.asana")
-    def test_server_error_raises_connection_error(self, mock_asana_module: MagicMock, settings: MagicMock) -> None:
+    def test_server_error_raises_connection_error(
+        self, mock_asana_module: MagicMock, settings: MagicMock
+    ) -> None:
         mock_tasks_api = MagicMock()
         mock_tasks_api.get_tasks.side_effect = ApiException(status=500, reason="Server Error")
         mock_asana_module.TasksApi.return_value = mock_tasks_api

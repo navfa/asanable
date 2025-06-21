@@ -41,10 +41,12 @@ def _build_payload(digest: Digest) -> dict:
             if due:
                 line += f" _{due}_"
             section_lines.append(line)
-        blocks.append({
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": "\n".join(section_lines)},
-        })
+        blocks.append(
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": "\n".join(section_lines)},
+            }
+        )
 
     return {"blocks": blocks}
 

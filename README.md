@@ -4,6 +4,15 @@ Asana + Gmail daily digest CLI aggregator.
 
 Aggregate your assigned Asana tasks and Gmail notifications into a single, prioritized daily digest.
 
+## Features
+
+- Fetch incomplete Asana tasks assigned to you, sorted by due date
+- Fetch Gmail notifications (Asana emails + unread messages)
+- Deduplicate items across sources
+- Score and prioritize: overdue > today > this week > later
+- Rich CLI output with colored sections and summary
+- Optional: daily scheduler, HTML email, Slack and Telegram notifications
+
 ## Setup
 
 ```bash
@@ -13,21 +22,71 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Edit `.env` with your Asana token and workspace GID.
+Edit `.env` with your Asana personal access token and workspace GID.
+
+For Gmail integration, create OAuth2 credentials in Google Cloud Console and save `credentials.json` in the project root.
 
 ## Usage
 
 ```bash
+# Run the digest
 asanable
+
+# Summary only (quiet mode)
+asanable --quiet
+
+# Run as a daily scheduler
+asanable --schedule
 ```
 
 ## Development
 
 ```bash
+# Lint and format
 ruff check src/ tests/ --fix
 ruff format src/ tests/
+
+# Run all tests
 pytest
+
+# Run tests with coverage
+pytest --cov=asanable --cov-report=term-missing
+
+# Run a specific test file
+pytest tests/unit/test_priority_service.py -v
 ```
+
+## Architecture
+
+```
+CLI (main.py) → Services (business logic) → Clients (external APIs)
+                     ↑
+                Domain (pure entities)
+                     ↓
+               Renderers (CLI, HTML, Slack, Telegram)
+```
+
+| Layer | Responsibility |
+|---|---|
+| `domain/` | Pure dataclasses: `AsanaTask`, `GmailMessage`, `DigestItem`, `Digest` |
+| `clients/` | API wrappers returning domain entities (Asana SDK, Gmail OAuth2) |
+| `services/` | Business logic: deduplication, scoring, digest building |
+| `renderers/` | Output formatting: rich CLI, HTML, Slack blocks, Telegram markdown |
+| `scheduler/` | Daily cron via `schedule` lib |
+
+## Configuration
+
+All settings via environment variables (`.env` file). See `.env.example` for the full list.
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `ASANA_ACCESS_TOKEN` | yes | — | Asana personal access token |
+| `ASANA_WORKSPACE_GID` | yes | — | Asana workspace GID |
+| `GMAIL_CREDENTIALS_PATH` | no | `credentials.json` | Path to Google OAuth2 credentials |
+| `DIGEST_SCHEDULE_TIME` | no | `08:00` | Daily digest time (for `--schedule` mode) |
+| `SLACK_WEBHOOK_URL` | no | — | Slack incoming webhook URL |
+| `TELEGRAM_BOT_TOKEN` | no | — | Telegram bot token |
+| `TELEGRAM_CHAT_ID` | no | — | Telegram chat ID |
 
 ## License
 

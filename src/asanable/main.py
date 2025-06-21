@@ -68,12 +68,14 @@ def _parse_args() -> argparse.Namespace:
         description="Asana + Gmail daily digest aggregator",
     )
     parser.add_argument(
-        "-q", "--quiet",
+        "-q",
+        "--quiet",
         action="store_true",
         help="show summary only",
     )
     parser.add_argument(
-        "-s", "--schedule",
+        "-s",
+        "--schedule",
         action="store_true",
         help="run as a daily scheduler",
     )

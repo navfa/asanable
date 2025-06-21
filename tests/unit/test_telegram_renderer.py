@@ -50,9 +50,7 @@ class TestBuildMessage:
     def test_item_without_date(self) -> None:
         section = DigestSection(
             section_type=DigestSectionType.LATER,
-            items=(
-                DigestItem(title="Backlog", source=ItemSource.ASANA, permalink=""),
-            ),
+            items=(DigestItem(title="Backlog", source=ItemSource.ASANA, permalink=""),),
         )
         msg = _build_message(_make_digest(sections=(section,)))
         assert "• Backlog" in msg

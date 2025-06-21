@@ -77,11 +77,7 @@ def _deduplicate(
 
 def _build_gid_index(items: list[DigestItem]) -> dict[str, DigestItem]:
     """Index items by their Asana task GID for fast lookup."""
-    return {
-        item.asana_task_gid: item
-        for item in items
-        if item.asana_task_gid is not None
-    }
+    return {item.asana_task_gid: item for item in items if item.asana_task_gid is not None}
 
 
 def _find_matching_email(
