@@ -41,19 +41,29 @@ asanable --schedule
 
 ## Development
 
+All common commands are available via `make`:
+
 ```bash
-# Lint and format
-ruff check src/ tests/ --fix
-ruff format src/ tests/
+make install    # Install project with dev dependencies
+make lint       # Run linter (with auto-fix)
+make format     # Format code
+make check      # Lint + format check (CI mode, no fix)
+make test       # Run all tests
+make cov        # Run tests with coverage report (80% threshold)
+make run        # Run the digest
+make quiet      # Run digest in quiet mode
+make schedule   # Start the daily scheduler
+make clean      # Remove build artifacts and caches
+```
 
-# Run all tests
-pytest
+Or run commands directly:
 
-# Run tests with coverage
-pytest --cov=asanable --cov-report=term-missing
-
+```bash
 # Run a specific test file
 pytest tests/unit/test_priority_service.py -v
+
+# Run a single test
+pytest tests/unit/test_priority_service.py::TestScoring::test_overdue_gets_highest_score -v
 ```
 
 ## Architecture
