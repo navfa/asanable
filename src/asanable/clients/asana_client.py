@@ -39,11 +39,13 @@ class AsanaClient:
         tasks_api = asana.TasksApi(self._api_client)
         try:
             response = tasks_api.get_tasks(
-                opts={"limit": 100},
-                assignee=ASSIGNEE_ME,
-                workspace=self._workspace_gid,
-                completed_since=COMPLETED_SINCE_NOW,
-                opt_fields=TASK_OPT_FIELDS,
+                {
+                    "assignee": ASSIGNEE_ME,
+                    "workspace": self._workspace_gid,
+                    "completed_since": COMPLETED_SINCE_NOW,
+                    "opt_fields": ",".join(TASK_OPT_FIELDS),
+                    "limit": 100,
+                },
             )
             return list(response)
         except ApiException as error:
