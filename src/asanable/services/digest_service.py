@@ -70,8 +70,34 @@ def _build_summary(items: list[DigestItem]) -> DigestSummary:
     """Compute summary stats from scored items."""
     overdue_count = sum(1 for item in items if item.is_overdue)
     today_count = sum(1 for item in items if _is_due_today(item))
+    this_week_count = sum(1 for item in items if _is_due_this_week(item))
+    later_count = len(items) - overdue_count - today_count - this_week_count
+    section_counts = _count_by_section(items)
+    project_counts = _count_by_project(items)
     return DigestSummary(
         total_items=len(items),
         overdue_count=overdue_count,
         today_count=today_count,
+        this_week_count=this_week_count,
+        later_count=later_count,
+        section_counts=section_counts,
+        project_counts=project_counts,
     )
+
+
+def _count_by_section(items: list[DigestItem]) -> dict[str, int]:
+    """Count items per section type."""
+    counts: dict[str, int] = {}
+    for item in items:
+        section = _classify_item(item).value
+        counts[section] = counts.get(section, 0) + 1
+    return counts
+
+
+def _count_by_project(items: list[DigestItem]) -> dict[str, int]:
+    """Count items per project, sorted descending."""
+    counts: dict[str, int] = {}
+    for item in items:
+        project = item.project_name or "No project"
+        counts[project] = counts.get(project, 0) + 1
+    return dict(sorted(counts.items(), key=lambda x: x[1], reverse=True))

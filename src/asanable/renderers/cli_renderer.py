@@ -34,10 +34,10 @@ class CliRenderer:
         self._render_summary(digest.summary)
 
     def _render_summary(self, summary: DigestSummary) -> None:
-        """Display the digest header panel with counters."""
-        lines = _build_summary_lines(summary)
+        """Display the digest header with counters, projects, and sections."""
+        group = _build_summary_group(summary)
         panel = Panel(
-            lines,
+            group,
             title="Daily Digest",
             subtitle=summary.generated_at.strftime("%Y-%m-%d %H:%M"),
             border_style="bold cyan",
@@ -56,14 +56,29 @@ class CliRenderer:
         self._console.print(panel)
 
 
-def _build_summary_lines(summary: DigestSummary) -> Text:
-    """Compose the summary text with styled counters."""
+def _build_summary_group(summary: DigestSummary) -> Text:
+    """Compose the full summary block."""
     text = Text()
-    text.append(f"Total: {summary.total_items}", style="bold")
-    text.append("  |  ")
+
+    text.append("Tasks  ", style="bold")
+    _append_counter(text, "Total", summary.total_items, "bold")
+    text.append("  ")
     _append_counter(text, "Overdue", summary.overdue_count, "bold red")
-    text.append("  |  ")
+    text.append("  ")
     _append_counter(text, "Today", summary.today_count, "bold yellow")
+    text.append("  ")
+    _append_counter(text, "This week", summary.this_week_count, "bold blue")
+    text.append("  ")
+    _append_counter(text, "Later", summary.later_count, "dim")
+    text.append("\n\n")
+
+    if summary.project_counts:
+        text.append("Projects\n", style="bold")
+        for project, count in summary.project_counts.items():
+            text.append(f"  {project}: ", style="cyan")
+            text.append(f"{count}\n")
+        text.append("\n")
+
     return text
 
 

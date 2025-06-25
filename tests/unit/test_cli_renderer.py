@@ -8,7 +8,7 @@ from asanable.constants import DigestSectionType, ItemSource
 from asanable.domain.digest import Digest, DigestItem, DigestSection, DigestSummary
 from asanable.renderers.cli_renderer import (
     CliRenderer,
-    _build_summary_lines,
+    _build_summary_group,
     _format_due_date,
     _format_item_row,
 )
@@ -99,17 +99,17 @@ class TestFormatItemRow:
 class TestBuildSummaryLines:
     def test_contains_total_count(self) -> None:
         summary = _make_summary(total=10)
-        text = _build_summary_lines(summary)
+        text = _build_summary_group(summary)
         assert "10" in text.plain
 
     def test_contains_overdue_count(self) -> None:
         summary = _make_summary(overdue=3)
-        text = _build_summary_lines(summary)
+        text = _build_summary_group(summary)
         assert "Overdue: 3" in text.plain
 
     def test_contains_today_count(self) -> None:
         summary = _make_summary(today=4)
-        text = _build_summary_lines(summary)
+        text = _build_summary_group(summary)
         assert "Today: 4" in text.plain
 
 

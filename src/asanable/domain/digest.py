@@ -38,6 +38,10 @@ class DigestSummary:
     total_items: int
     overdue_count: int
     today_count: int
+    this_week_count: int = 0
+    later_count: int = 0
+    section_counts: dict[str, int] = field(default_factory=dict)
+    project_counts: dict[str, int] = field(default_factory=dict)
     generated_at: datetime = field(default_factory=datetime.now)
 
 
