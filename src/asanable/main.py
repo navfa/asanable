@@ -26,6 +26,8 @@ def _run_digest(args: argparse.Namespace) -> None:
 
     settings = Settings()
     tasks, emails = _fetch_sources(settings)
+    if args.project:
+        tasks = _filter_by_project(tasks, args.project)
     digest = build_digest(tasks, emails)
     renderer = CliRenderer()
 
@@ -74,12 +76,25 @@ def _parse_args() -> argparse.Namespace:
         help="show summary only",
     )
     parser.add_argument(
+        "-p",
+        "--project",
+        type=str,
+        default=None,
+        help="filter tasks by project name (case-insensitive substring match)",
+    )
+    parser.add_argument(
         "-s",
         "--schedule",
         action="store_true",
         help="run as a daily scheduler",
     )
     return parser.parse_args()
+
+
+def _filter_by_project(tasks: list, project_filter: str) -> list:
+    """Keep only tasks whose project name matches the filter (case-insensitive)."""
+    needle = project_filter.lower()
+    return [t for t in tasks if t.project_name and needle in t.project_name.lower()]
 
 
 def _run_scheduler() -> None:
