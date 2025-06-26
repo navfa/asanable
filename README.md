@@ -29,11 +29,18 @@ For Gmail integration, create OAuth2 credentials in Google Cloud Console and sav
 ## Usage
 
 ```bash
-# Run the digest
+# Run the full digest
 asanable
 
 # Summary only (quiet mode)
 asanable --quiet
+
+# Filter by project (case-insensitive substring match)
+asanable --project "Mobile App"
+asanable -p admin
+
+# Combine flags
+asanable -p mobile -q
 
 # Run as a daily scheduler
 asanable --schedule
