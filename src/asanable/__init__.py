@@ -1,1 +1,1 @@
-"""Asanable — Asana + Gmail daily digest CLI aggregator."""
+"""Asanable — Asana daily digest CLI aggregator."""

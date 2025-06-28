@@ -1,4 +1,4 @@
-"""Digest domain entities — unified view of tasks and emails."""
+"""Digest domain entities — unified view of tasks."""
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -8,7 +8,7 @@ from asanable.constants import DigestSectionType, ItemSource
 
 @dataclass(frozen=True)
 class DigestItem:
-    """A single item in the digest, from any source."""
+    """A single item in the digest."""
 
     title: str
     source: ItemSource
@@ -17,9 +17,7 @@ class DigestItem:
     project_name: str | None = None
     snippet: str | None = None
     asana_task_gid: str | None = None
-    gmail_message_id: str | None = None
     is_overdue: bool = False
-    is_unread: bool = False
     score: int = 0
 
 

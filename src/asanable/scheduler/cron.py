@@ -27,36 +27,20 @@ def _run_scheduled_digest(settings: Settings) -> None:
 
     logger.info("digest_run_started")
     try:
-        tasks, emails = _fetch_all_sources(settings)
-        digest = build_digest(tasks, emails)
+        tasks = _fetch_tasks(settings)
+        digest = build_digest(tasks)
         _dispatch(digest, settings)
         logger.info("digest_run_completed", total_items=digest.summary.total_items)
     except Exception:
         logger.exception("digest_run_failed")
 
 
-def _fetch_all_sources(settings: Settings):
-    """Fetch tasks and emails from all configured sources."""
+def _fetch_tasks(settings: Settings) -> list:
+    """Fetch tasks from Asana."""
     from asanable.clients.asana_client import AsanaClient
 
     asana_client = AsanaClient(settings)
-    tasks = asana_client.fetch_my_tasks()
-    emails = _fetch_emails(settings)
-    return tasks, emails
-
-
-def _fetch_emails(settings: Settings) -> list:
-    """Fetch Gmail emails if configured, return empty list otherwise."""
-    if not settings.gmail_credentials_path.exists():
-        return []
-    try:
-        from asanable.clients.gmail_client import GmailClient
-
-        client = GmailClient(settings)
-        return client.fetch_asana_notifications() + client.fetch_unread_emails()
-    except Exception:
-        logger.warning("gmail_fetch_failed")
-        return []
+    return asana_client.fetch_my_tasks()
 
 
 def _dispatch(digest, settings: Settings) -> None:
@@ -65,22 +49,8 @@ def _dispatch(digest, settings: Settings) -> None:
 
     CliRenderer().render(digest)
 
-    _dispatch_email(digest, settings)
     _dispatch_slack(digest, settings)
     _dispatch_telegram(digest, settings)
-
-
-def _dispatch_email(digest, settings: Settings) -> None:
-    """Send HTML email if configured."""
-    if settings.digest_email_to is None:
-        return
-    try:
-        from asanable.renderers.html_renderer import render_html
-
-        html = render_html(digest)
-        logger.info("html_email_rendered", to=settings.digest_email_to, length=len(html))
-    except Exception:
-        logger.warning("email_dispatch_failed")
 
 
 def _dispatch_slack(digest, settings: Settings) -> None:

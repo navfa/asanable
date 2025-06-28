@@ -6,12 +6,10 @@ from asanable.constants import (
     SCORE_OVERDUE,
     SCORE_THIS_WEEK,
     SCORE_TODAY,
-    SCORE_UNREAD_EMAIL,
 )
 from asanable.services.priority_service import score_items
 from tests.factories.digest_factory import (
     make_digest_item,
-    make_gmail_only_item,
     make_overdue_item,
     make_this_week_item,
     make_today_item,
@@ -30,10 +28,6 @@ class TestScoring:
     def test_this_week_gets_week_score(self) -> None:
         items = score_items([make_this_week_item()])
         assert items[0].score == SCORE_THIS_WEEK
-
-    def test_gmail_only_gets_email_score(self) -> None:
-        items = score_items([make_gmail_only_item()])
-        assert items[0].score == SCORE_UNREAD_EMAIL
 
     def test_future_task_with_date_gets_later_score(self) -> None:
         from datetime import date, timedelta

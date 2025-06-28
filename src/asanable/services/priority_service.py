@@ -8,8 +8,6 @@ from asanable.constants import (
     SCORE_OVERDUE,
     SCORE_THIS_WEEK,
     SCORE_TODAY,
-    SCORE_UNREAD_EMAIL,
-    ItemSource,
 )
 from asanable.domain.digest import DigestItem
 
@@ -32,9 +30,7 @@ def _apply_score(item: DigestItem) -> DigestItem:
         project_name=item.project_name,
         snippet=item.snippet,
         asana_task_gid=item.asana_task_gid,
-        gmail_message_id=item.gmail_message_id,
         is_overdue=item.is_overdue,
-        is_unread=item.is_unread,
         score=_compute_score(item),
     )
 
@@ -47,8 +43,6 @@ def _compute_score(item: DigestItem) -> int:
         return SCORE_TODAY
     if _is_due_this_week(item):
         return SCORE_THIS_WEEK
-    if item.source == ItemSource.GMAIL and item.asana_task_gid is None:
-        return SCORE_UNREAD_EMAIL
     if item.due_on is not None:
         return SCORE_LATER
     return SCORE_NO_DATE

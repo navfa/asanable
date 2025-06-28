@@ -1,7 +1,5 @@
 """Application configuration via environment variables."""
 
-from pathlib import Path
-
 from pydantic_settings import BaseSettings
 
 
@@ -12,16 +10,8 @@ class Settings(BaseSettings):
     asana_access_token: str
     asana_workspace_gid: str
 
-    # Gmail OAuth2
-    gmail_credentials_path: Path = Path("credentials.json")
-    gmail_token_path: Path = Path("token.json")
-
     # Digest
     digest_schedule_time: str = "08:00"
-    max_gmail_results: int = 20
-    gmail_lookback_hours: int = 24
-
-    digest_email_to: str | None = None
 
     slack_webhook_url: str | None = None
 

@@ -25,10 +25,10 @@ def _run_digest(args: argparse.Namespace) -> None:
     from asanable.services.digest_service import build_digest
 
     settings = Settings()
-    tasks, emails = _fetch_sources(settings)
+    tasks = _fetch_tasks(settings)
     if args.project:
         tasks = _filter_by_project(tasks, args.project)
-    digest = build_digest(tasks, emails)
+    digest = build_digest(tasks)
     renderer = CliRenderer()
 
     if args.quiet:
@@ -37,37 +37,19 @@ def _run_digest(args: argparse.Namespace) -> None:
         renderer.render(digest)
 
 
-def _fetch_sources(settings):
-    """Fetch tasks and emails from configured sources."""
+def _fetch_tasks(settings) -> list:
+    """Fetch tasks from Asana."""
     from asanable.clients.asana_client import AsanaClient
 
     asana_client = AsanaClient(settings)
-    tasks = asana_client.fetch_my_tasks()
-
-    emails = _fetch_emails_if_configured(settings)
-    return tasks, emails
-
-
-def _fetch_emails_if_configured(settings) -> list:
-    """Fetch Gmail emails only if credentials are available."""
-    if not settings.gmail_credentials_path.exists():
-        return []
-    try:
-        from asanable.clients.gmail_client import GmailClient
-
-        gmail_client = GmailClient(settings)
-        notifications = gmail_client.fetch_asana_notifications()
-        unread = gmail_client.fetch_unread_emails()
-        return notifications + unread
-    except Exception:
-        return []
+    return asana_client.fetch_my_tasks()
 
 
 def _parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
         prog="asanable",
-        description="Asana + Gmail daily digest aggregator",
+        description="Asana daily digest aggregator",
     )
     parser.add_argument(
         "-q",

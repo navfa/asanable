@@ -1,17 +1,15 @@
 # asanable
 
-Asana + Gmail daily digest CLI aggregator.
+Asana daily digest CLI aggregator.
 
-Aggregate your assigned Asana tasks and Gmail notifications into a single, prioritized daily digest.
+Aggregate your assigned Asana tasks into a single, prioritized daily digest.
 
 ## Features
 
 - Fetch incomplete Asana tasks assigned to you, sorted by due date
-- Fetch Gmail notifications (Asana emails + unread messages)
-- Deduplicate items across sources
 - Score and prioritize: overdue > today > this week > later
 - Rich CLI output with colored sections and summary
-- Optional: daily scheduler, HTML email, Slack and Telegram notifications
+- Optional: daily scheduler, Slack and Telegram notifications
 
 ## Setup
 
@@ -23,8 +21,6 @@ pip install -e ".[dev]"
 ```
 
 Edit `.env` with your Asana personal access token and workspace GID.
-
-For Gmail integration, create OAuth2 credentials in Google Cloud Console and save `credentials.json` in the project root.
 
 ## Usage
 
@@ -85,9 +81,9 @@ CLI (main.py) → Services (business logic) → Clients (external APIs)
 
 | Layer | Responsibility |
 |---|---|
-| `domain/` | Pure dataclasses: `AsanaTask`, `GmailMessage`, `DigestItem`, `Digest` |
-| `clients/` | API wrappers returning domain entities (Asana SDK, Gmail OAuth2) |
-| `services/` | Business logic: deduplication, scoring, digest building |
+| `domain/` | Pure dataclasses: `AsanaTask`, `DigestItem`, `Digest` |
+| `clients/` | API wrappers returning domain entities (Asana SDK) |
+| `services/` | Business logic: scoring, digest building |
 | `renderers/` | Output formatting: rich CLI, HTML, Slack blocks, Telegram markdown |
 | `scheduler/` | Daily cron via `schedule` lib |
 
@@ -99,7 +95,6 @@ All settings via environment variables (`.env` file). See `.env.example` for the
 |---|---|---|---|
 | `ASANA_ACCESS_TOKEN` | yes | — | Asana personal access token |
 | `ASANA_WORKSPACE_GID` | yes | — | Asana workspace GID |
-| `GMAIL_CREDENTIALS_PATH` | no | `credentials.json` | Path to Google OAuth2 credentials |
 | `DIGEST_SCHEDULE_TIME` | no | `08:00` | Daily digest time (for `--schedule` mode) |
 | `SLACK_WEBHOOK_URL` | no | — | Slack incoming webhook URL |
 | `TELEGRAM_BOT_TOKEN` | no | — | Telegram bot token |

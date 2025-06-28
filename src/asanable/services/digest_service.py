@@ -1,16 +1,15 @@
-"""Digest service — orchestrates dedup, scoring, and section building."""
+"""Digest service — orchestrates scoring and section building."""
 
-from asanable.constants import DigestSectionType, ItemSource
+from asanable.constants import DigestSectionType
 from asanable.domain.digest import Digest, DigestItem, DigestSection, DigestSummary
-from asanable.domain.email import GmailMessage
 from asanable.domain.task import AsanaTask
 from asanable.services.dedup_service import build_digest_items
 from asanable.services.priority_service import score_items
 
 
-def build_digest(tasks: list[AsanaTask], emails: list[GmailMessage]) -> Digest:
-    """Build a complete digest from raw tasks and emails."""
-    items = build_digest_items(tasks, emails)
+def build_digest(tasks: list[AsanaTask]) -> Digest:
+    """Build a complete digest from raw tasks."""
+    items = build_digest_items(tasks)
     scored_items = score_items(items)
     sections = _build_sections(scored_items)
     summary = _build_summary(scored_items)
@@ -38,8 +37,6 @@ def _group_by_section(items: list[DigestItem]) -> dict[DigestSectionType, list[D
 
 def _classify_item(item: DigestItem) -> DigestSectionType:
     """Determine which section an item belongs to."""
-    if item.source == ItemSource.GMAIL and item.asana_task_gid is None:
-        return DigestSectionType.GMAIL
     if item.is_overdue:
         return DigestSectionType.OVERDUE
     if _is_due_today(item):
