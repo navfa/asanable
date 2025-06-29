@@ -25,7 +25,7 @@ def _run_digest(args: argparse.Namespace) -> None:
     from asanable.services.digest_service import build_digest
 
     settings = Settings()
-    tasks = _fetch_tasks(settings)
+    tasks = _resolve_tasks(settings, args)
     if args.project:
         tasks = _filter_by_project(tasks, args.project)
     digest = build_digest(tasks)
@@ -37,12 +37,38 @@ def _run_digest(args: argparse.Namespace) -> None:
         renderer.render(digest)
 
 
-def _fetch_tasks(settings) -> list:
-    """Fetch tasks from Asana."""
+def _resolve_tasks(settings, args: argparse.Namespace) -> list:
+    """Fetch tasks from API or cache depending on flags."""
+    from asanable.infrastructure.cache import load_tasks, save_tasks
+
+    if args.cache:
+        cached = load_tasks()
+        if cached is not None:
+            return cached
+        _print_warning("No cache found, fetching from API...")
+
+    if not args.refresh:
+        cached = load_tasks()
+        if cached is not None:
+            return cached
+
+    tasks = _fetch_tasks_from_api(settings)
+    save_tasks(tasks)
+    return tasks
+
+
+def _fetch_tasks_from_api(settings) -> list:
+    """Fetch tasks from Asana API."""
     from asanable.clients.asana_client import AsanaClient
 
-    asana_client = AsanaClient(settings)
-    return asana_client.fetch_my_tasks()
+    return AsanaClient(settings).fetch_my_tasks()
+
+
+def _print_warning(message: str) -> None:
+    """Print a warning to stderr."""
+    from rich.console import Console
+
+    Console(stderr=True).print(f"[yellow]{message}[/]")
 
 
 def _parse_args() -> argparse.Namespace:
@@ -63,6 +89,18 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         default=None,
         help="filter tasks by project name (case-insensitive substring match)",
+    )
+    parser.add_argument(
+        "-c",
+        "--cache",
+        action="store_true",
+        help="use cached data only (no API call)",
+    )
+    parser.add_argument(
+        "-r",
+        "--refresh",
+        action="store_true",
+        help="force API refresh (ignore cache)",
     )
     parser.add_argument(
         "-s",
