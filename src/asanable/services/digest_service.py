@@ -48,19 +48,21 @@ def _classify_item(item: DigestItem) -> DigestSectionType:
 
 def _is_due_today(item: DigestItem) -> bool:
     """Check if item is due today."""
-    from datetime import date
+    from asanable.infrastructure.clock import today
 
-    return item.due_on == date.today()
+    return item.due_on == today()
 
 
 def _is_due_this_week(item: DigestItem) -> bool:
     """Check if item is due within the next 7 days."""
-    from datetime import date, timedelta
+    from datetime import timedelta
+
+    from asanable.infrastructure.clock import today
 
     if item.due_on is None:
         return False
-    today = date.today()
-    return today < item.due_on <= today + timedelta(days=7)
+    now = today()
+    return now < item.due_on <= now + timedelta(days=7)
 
 
 def _build_summary(items: list[DigestItem]) -> DigestSummary:

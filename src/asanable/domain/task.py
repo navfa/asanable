@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from datetime import date
 
+from asanable.infrastructure.clock import today as _today
+
 
 @dataclass(frozen=True)
 class AsanaTask:
@@ -20,14 +22,14 @@ class AsanaTask:
         """A task is overdue when its due date is strictly before today."""
         if self.due_on is None:
             return False
-        return self.due_on < date.today()
+        return self.due_on < _today()
 
     @property
     def is_due_today(self) -> bool:
         """Check if the task is due today."""
         if self.due_on is None:
             return False
-        return self.due_on == date.today()
+        return self.due_on == _today()
 
 
 def sort_tasks_by_due_date(tasks: list[AsanaTask]) -> list[AsanaTask]:

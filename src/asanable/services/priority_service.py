@@ -1,6 +1,6 @@
 """Priority service — scores and sorts digest items."""
 
-from datetime import date, timedelta
+from datetime import timedelta
 
 from asanable.constants import (
     SCORE_LATER,
@@ -10,6 +10,7 @@ from asanable.constants import (
     SCORE_TODAY,
 )
 from asanable.domain.digest import DigestItem
+from asanable.infrastructure.clock import today as _today
 
 DAYS_IN_WEEK = 7
 
@@ -50,14 +51,14 @@ def _compute_score(item: DigestItem) -> int:
 
 def _is_due_today(item: DigestItem) -> bool:
     """Check if the item is due today."""
-    return item.due_on == date.today()
+    return item.due_on == _today()
 
 
 def _is_due_this_week(item: DigestItem) -> bool:
     """Check if the item is due within the next 7 days (excluding today)."""
     if item.due_on is None:
         return False
-    today = date.today()
+    today = _today()
     end_of_week = today + timedelta(days=DAYS_IN_WEEK)
     return today < item.due_on <= end_of_week
 

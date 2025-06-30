@@ -30,6 +30,8 @@ def _run_digest(args: argparse.Namespace) -> None:
     if args.project:
         tasks = _filter_by_project(tasks, args.project)
     digest = build_digest(tasks)
+    if args.overdue or args.today:
+        digest = _filter_sections(digest, args)
     _render_digest(digest, args)
 
 
@@ -85,6 +87,16 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         default=None,
         help="filter tasks by project name (case-insensitive substring match)",
+    )
+    parser.add_argument(
+        "--overdue",
+        action="store_true",
+        help="show only overdue tasks",
+    )
+    parser.add_argument(
+        "--today",
+        action="store_true",
+        help="show only tasks due today",
     )
     parser.add_argument(
         "-c",
@@ -148,6 +160,21 @@ def _get_version() -> str:
     from asanable import __version__
 
     return __version__
+
+
+def _filter_sections(digest, args: argparse.Namespace):
+    """Keep only the requested sections."""
+    from asanable.constants import DigestSectionType
+    from asanable.domain.digest import Digest
+
+    allowed = set()
+    if args.overdue:
+        allowed.add(DigestSectionType.OVERDUE)
+    if args.today:
+        allowed.add(DigestSectionType.TODAY)
+
+    filtered = tuple(s for s in digest.sections if s.section_type in allowed)
+    return Digest(summary=digest.summary, sections=filtered)
 
 
 def _filter_by_project(tasks: list, project_filter: str) -> list:
