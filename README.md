@@ -44,11 +44,18 @@ asanable --cache
 # Force refresh from API
 asanable --refresh
 
+# Show only overdue tasks
+asanable --overdue
+
+# Show only tasks due today
+asanable --today
+
 # Export as HTML
 asanable --output html > digest.html
 
 # Combine flags
 asanable -p mobile -q
+asanable --cache --overdue
 asanable --cache -o html > mobile.html
 
 # Run as a daily scheduler
@@ -71,6 +78,9 @@ make test       # Run all tests
 make cov        # Run tests with coverage report (80% threshold)
 make run        # Run the digest
 make quiet      # Run digest in quiet mode
+make project P="Mobile App"  # Filter by project
+make html       # Export digest as HTML to stdout
+make init       # Run interactive setup wizard
 make schedule   # Start the daily scheduler
 make clean      # Remove build artifacts and caches
 ```
