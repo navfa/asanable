@@ -14,6 +14,12 @@ class TestParseArgs:
             args = _parse_args()
         assert args.quiet is False
         assert args.schedule is False
+        assert args.cache is False
+        assert args.refresh is False
+        assert args.overdue is False
+        assert args.today is False
+        assert args.output == "cli"
+        assert args.project is None
 
     def test_quiet_flag(self) -> None:
         with patch("sys.argv", ["asanable", "--quiet"]):
@@ -29,6 +35,41 @@ class TestParseArgs:
         with patch("sys.argv", ["asanable", "--schedule"]):
             args = _parse_args()
         assert args.schedule is True
+
+    def test_cache_flag(self) -> None:
+        with patch("sys.argv", ["asanable", "--cache"]):
+            args = _parse_args()
+        assert args.cache is True
+
+    def test_refresh_flag(self) -> None:
+        with patch("sys.argv", ["asanable", "--refresh"]):
+            args = _parse_args()
+        assert args.refresh is True
+
+    def test_overdue_flag(self) -> None:
+        with patch("sys.argv", ["asanable", "--overdue"]):
+            args = _parse_args()
+        assert args.overdue is True
+
+    def test_today_flag(self) -> None:
+        with patch("sys.argv", ["asanable", "--today"]):
+            args = _parse_args()
+        assert args.today is True
+
+    def test_output_html(self) -> None:
+        with patch("sys.argv", ["asanable", "-o", "html"]):
+            args = _parse_args()
+        assert args.output == "html"
+
+    def test_project_flag(self) -> None:
+        with patch("sys.argv", ["asanable", "-p", "Mobile"]):
+            args = _parse_args()
+        assert args.project == "Mobile"
+
+    def test_init_flag(self) -> None:
+        with patch("sys.argv", ["asanable", "--init"]):
+            args = _parse_args()
+        assert args.init is True
 
 
 class TestHandleError:
