@@ -42,7 +42,7 @@ class TestMain:
     @patch("asanable.main._parse_args")
     @patch("asanable.main._run_digest")
     def test_calls_run_digest(self, mock_run: MagicMock, mock_args: MagicMock) -> None:
-        mock_args.return_value = MagicMock(schedule=False)
+        mock_args.return_value = MagicMock(schedule=False, init=False)
         main()
         mock_run.assert_called_once()
 
@@ -51,9 +51,16 @@ class TestMain:
     def test_calls_scheduler_when_flag_set(
         self, mock_sched: MagicMock, mock_args: MagicMock
     ) -> None:
-        mock_args.return_value = MagicMock(schedule=True)
+        mock_args.return_value = MagicMock(schedule=True, init=False)
         main()
         mock_sched.assert_called_once()
+
+    @patch("asanable.main._parse_args")
+    @patch("asanable.main._run_init")
+    def test_calls_init_when_flag_set(self, mock_init: MagicMock, mock_args: MagicMock) -> None:
+        mock_args.return_value = MagicMock(init=True, schedule=False)
+        main()
+        mock_init.assert_called_once()
 
     @patch("asanable.main._parse_args")
     @patch("asanable.main._run_digest", side_effect=AsanaAuthError("token expired"))
@@ -64,6 +71,6 @@ class TestMain:
         _mock_run: MagicMock,
         mock_args: MagicMock,
     ) -> None:
-        mock_args.return_value = MagicMock(schedule=False)
+        mock_args.return_value = MagicMock(schedule=False, init=False)
         main()
         mock_handle.assert_called_once()

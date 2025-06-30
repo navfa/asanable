@@ -10,7 +10,9 @@ def main() -> None:
     """Run the asanable daily digest."""
     args = _parse_args()
     try:
-        if args.schedule:
+        if args.init:
+            _run_init()
+        elif args.schedule:
             _run_scheduler()
         else:
             _run_digest(args)
@@ -21,7 +23,6 @@ def main() -> None:
 def _run_digest(args: argparse.Namespace) -> None:
     """Fetch data, build digest, and render output."""
     from asanable.config import Settings
-    from asanable.renderers.cli_renderer import CliRenderer
     from asanable.services.digest_service import build_digest
 
     settings = Settings()
@@ -29,12 +30,7 @@ def _run_digest(args: argparse.Namespace) -> None:
     if args.project:
         tasks = _filter_by_project(tasks, args.project)
     digest = build_digest(tasks)
-    renderer = CliRenderer()
-
-    if args.quiet:
-        renderer.render_summary_only(digest)
-    else:
-        renderer.render(digest)
+    _render_digest(digest, args)
 
 
 def _resolve_tasks(settings, args: argparse.Namespace) -> list:
@@ -103,18 +99,68 @@ def _parse_args() -> argparse.Namespace:
         help="force API refresh (ignore cache)",
     )
     parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        choices=["cli", "html"],
+        default="cli",
+        help="output format (default: cli)",
+    )
+    parser.add_argument(
         "-s",
         "--schedule",
         action="store_true",
         help="run as a daily scheduler",
     )
+    parser.add_argument(
+        "--init",
+        action="store_true",
+        help="run interactive setup wizard",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {_get_version()}",
+    )
     return parser.parse_args()
+
+
+def _render_digest(digest, args: argparse.Namespace) -> None:
+    """Route digest to the appropriate renderer."""
+    if args.output == "html":
+        from asanable.renderers.html_renderer import render_html
+
+        print(render_html(digest))
+        return
+
+    from asanable.renderers.cli_renderer import CliRenderer
+
+    renderer = CliRenderer()
+    if args.quiet:
+        renderer.render_summary_only(digest)
+    else:
+        renderer.render(digest)
+
+
+def _get_version() -> str:
+    """Read version from package metadata."""
+    from asanable import __version__
+
+    return __version__
 
 
 def _filter_by_project(tasks: list, project_filter: str) -> list:
     """Keep only tasks whose project name matches the filter (case-insensitive)."""
     needle = project_filter.lower()
     return [t for t in tasks if t.project_name and needle in t.project_name.lower()]
+
+
+def _run_init() -> None:
+    """Launch the interactive setup wizard."""
+    from asanable.commands.init_command import run_init
+
+    run_init()
 
 
 def _run_scheduler() -> None:
