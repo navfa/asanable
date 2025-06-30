@@ -1,8 +1,8 @@
 # asanable
 
-Asana daily digest CLI aggregator.
+Prioritized daily digest for your Asana tasks — overdue, today, this week — straight in your terminal.
 
-Aggregate your assigned Asana tasks into a single, prioritized daily digest.
+![asanable screenshot](public/screenshots/screen.png)
 
 ## Features
 
@@ -14,7 +14,7 @@ Aggregate your assigned Asana tasks into a single, prioritized daily digest.
 ## Setup
 
 ```bash
-git clone https://github.com/your-org/asanable.git && cd asanable
+git clone https://github.com/navfa/asanable.git && cd asanable
 cp .env.example .env
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"

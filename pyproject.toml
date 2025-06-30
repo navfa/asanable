@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "asanable"
 version = "1.0.0"
-description = "Asana daily digest CLI aggregator"
+description = "Prioritized daily digest for your Asana tasks — overdue, today, this week — straight in your terminal."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"

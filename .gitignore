@@ -38,3 +38,4 @@ htmlcov/
 Thumbs.db
 
 # Local config
+.local/
