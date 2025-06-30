@@ -25,6 +25,9 @@ Edit `.env` with your Asana personal access token and workspace GID.
 ## Usage
 
 ```bash
+# First time setup (interactive wizard)
+asanable --init
+
 # Run the full digest
 asanable
 
@@ -35,11 +38,24 @@ asanable --quiet
 asanable --project "Mobile App"
 asanable -p admin
 
+# Use cached data (no API call, instant)
+asanable --cache
+
+# Force refresh from API
+asanable --refresh
+
+# Export as HTML
+asanable --output html > digest.html
+
 # Combine flags
 asanable -p mobile -q
+asanable --cache -o html > mobile.html
 
 # Run as a daily scheduler
 asanable --schedule
+
+# Show version
+asanable --version
 ```
 
 ## Development

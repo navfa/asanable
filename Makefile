@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help install lint format test cov run quiet schedule clean project
+.PHONY: help install lint format test cov run quiet project html init schedule clean
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -32,6 +32,12 @@ quiet: ## Run digest in quiet mode
 
 project: ## Filter by project (usage: make project P="Mobile App")
 	python -m asanable --project "$(P)"
+
+html: ## Export digest as HTML to stdout
+	python -m asanable --output html
+
+init: ## Run interactive setup wizard
+	python -m asanable --init
 
 schedule: ## Start the daily scheduler
 	python -m asanable --schedule
