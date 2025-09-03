@@ -3,13 +3,6 @@
 from enum import StrEnum
 
 
-class TaskStatus(StrEnum):
-    """Asana task completion status."""
-
-    COMPLETED = "completed"
-    INCOMPLETE = "incomplete"
-
-
 class DigestSectionType(StrEnum):
     """Digest section categories."""
 

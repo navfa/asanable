@@ -8,6 +8,7 @@ from asanable.errors import AsanableError
 
 def main() -> None:
     """Run the asanable daily digest."""
+    _configure_logging()
     args = _parse_args()
     try:
         if args.init:
@@ -43,7 +44,8 @@ def _resolve_tasks(settings, args: argparse.Namespace) -> list:
         cached = load_tasks()
         if cached is not None:
             return cached
-        _print_warning("No cache found, fetching from API...")
+        _print_warning("No cache available. Run without --cache first.")
+        raise SystemExit(1)
 
     if not args.refresh:
         cached = load_tasks()
@@ -181,6 +183,21 @@ def _filter_by_project(tasks: list, project_filter: str) -> list:
     """Keep only tasks whose project name matches the filter (case-insensitive)."""
     needle = project_filter.lower()
     return [t for t in tasks if t.project_name and needle in t.project_name.lower()]
+
+
+def _configure_logging() -> None:
+    """Set up structlog for CLI output."""
+    import logging
+
+    import structlog
+
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING),
+        processors=[
+            structlog.processors.add_log_level,
+            structlog.dev.ConsoleRenderer(),
+        ],
+    )
 
 
 def _run_init() -> None:

@@ -3,7 +3,7 @@
 from asanable.constants import DigestSectionType
 from asanable.domain.digest import Digest, DigestItem, DigestSection, DigestSummary
 from asanable.domain.task import AsanaTask
-from asanable.services.dedup_service import build_digest_items
+from asanable.services.mapper_service import build_digest_items
 from asanable.services.priority_service import score_items
 
 

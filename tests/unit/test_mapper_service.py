@@ -1,7 +1,7 @@
-"""Tests for the conversion service."""
+"""Tests for the mapper service."""
 
 from asanable.constants import ItemSource
-from asanable.services.dedup_service import build_digest_items
+from asanable.services.mapper_service import build_digest_items
 from tests.factories.task_factory import make_overdue_task, make_task
 
 

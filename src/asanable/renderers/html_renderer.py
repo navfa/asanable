@@ -1,5 +1,7 @@
 """HTML renderer — produces an HTML string from a Digest."""
 
+from html import escape
+
 from asanable.constants import NO_DATE_LABEL, NO_PROJECT_LABEL, SECTION_STYLES
 from asanable.domain.digest import Digest, DigestItem, DigestSection
 
@@ -63,19 +65,21 @@ def _render_section(section: DigestSection) -> str:
 def _render_row(item: DigestItem) -> str:
     """Render a single item as a table row."""
     title = _format_title(item)
-    project = item.project_name or NO_PROJECT_LABEL
+    project = escape(item.project_name or NO_PROJECT_LABEL)
     due = item.due_on.strftime("%b %d") if item.due_on else NO_DATE_LABEL
-    source = item.source.value.capitalize()
+    source = escape(item.source.value.capitalize())
     return f"<tr><td>{title}</td><td>{project}</td><td>{due}</td><td>{source}</td></tr>"
 
 
 def _format_title(item: DigestItem) -> str:
     """Format title with overdue styling if needed."""
+    safe_title = escape(item.title)
     if item.is_overdue:
-        return f'<span class="overdue">{item.title}</span>'
+        return f'<span class="overdue">{safe_title}</span>'
     if item.permalink:
-        return f'<a href="{item.permalink}">{item.title}</a>'
-    return item.title
+        safe_url = escape(item.permalink, quote=True)
+        return f'<a href="{safe_url}">{safe_title}</a>'
+    return safe_title
 
 
 CSS_COLOR_MAP = {
