@@ -1,7 +1,5 @@
 """Priority service — scores and sorts digest items."""
 
-from datetime import timedelta
-
 from asanable.constants import (
     SCORE_LATER,
     SCORE_NO_DATE,
@@ -10,9 +8,7 @@ from asanable.constants import (
     SCORE_TODAY,
 )
 from asanable.domain.digest import DigestItem
-from asanable.infrastructure.clock import today as _today
-
-DAYS_IN_WEEK = 7
+from asanable.infrastructure.clock import is_due_this_week, is_due_today
 
 
 def score_items(items: list[DigestItem]) -> list[DigestItem]:
@@ -40,27 +36,13 @@ def _compute_score(item: DigestItem) -> int:
     """Pure function: compute priority score for a single item."""
     if item.is_overdue:
         return SCORE_OVERDUE
-    if _is_due_today(item):
+    if is_due_today(item.due_on):
         return SCORE_TODAY
-    if _is_due_this_week(item):
+    if is_due_this_week(item.due_on):
         return SCORE_THIS_WEEK
     if item.due_on is not None:
         return SCORE_LATER
     return SCORE_NO_DATE
-
-
-def _is_due_today(item: DigestItem) -> bool:
-    """Check if the item is due today."""
-    return item.due_on == _today()
-
-
-def _is_due_this_week(item: DigestItem) -> bool:
-    """Check if the item is due within the next 7 days (excluding today)."""
-    if item.due_on is None:
-        return False
-    today = _today()
-    end_of_week = today + timedelta(days=DAYS_IN_WEEK)
-    return today < item.due_on <= end_of_week
 
 
 def _sort_key(item: DigestItem) -> tuple[int, int, str]:

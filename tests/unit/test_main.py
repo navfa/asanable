@@ -83,7 +83,7 @@ class TestMain:
     @patch("asanable.main._parse_args")
     @patch("asanable.main._run_digest")
     def test_calls_run_digest(self, mock_run: MagicMock, mock_args: MagicMock) -> None:
-        mock_args.return_value = MagicMock(schedule=False, init=False)
+        mock_args.return_value = MagicMock(schedule=False, init=False, done=None, open=None)
         main()
         mock_run.assert_called_once()
 
@@ -92,16 +92,30 @@ class TestMain:
     def test_calls_scheduler_when_flag_set(
         self, mock_sched: MagicMock, mock_args: MagicMock
     ) -> None:
-        mock_args.return_value = MagicMock(schedule=True, init=False)
+        mock_args.return_value = MagicMock(schedule=True, init=False, done=None, open=None)
         main()
         mock_sched.assert_called_once()
 
     @patch("asanable.main._parse_args")
     @patch("asanable.main._run_init")
     def test_calls_init_when_flag_set(self, mock_init: MagicMock, mock_args: MagicMock) -> None:
-        mock_args.return_value = MagicMock(init=True, schedule=False)
+        mock_args.return_value = MagicMock(init=True, schedule=False, done=None, open=None)
         main()
         mock_init.assert_called_once()
+
+    @patch("asanable.main._parse_args")
+    @patch("asanable.main._mark_done")
+    def test_calls_mark_done(self, mock_done: MagicMock, mock_args: MagicMock) -> None:
+        mock_args.return_value = MagicMock(init=False, schedule=False, done="12345", open=None)
+        main()
+        mock_done.assert_called_once_with("12345")
+
+    @patch("asanable.main._parse_args")
+    @patch("asanable.main._open_task")
+    def test_calls_open_task(self, mock_open: MagicMock, mock_args: MagicMock) -> None:
+        mock_args.return_value = MagicMock(init=False, schedule=False, done=None, open="67890")
+        main()
+        mock_open.assert_called_once_with("67890")
 
     @patch("asanable.main._parse_args")
     @patch("asanable.main._run_digest", side_effect=AsanaAuthError("token expired"))
@@ -112,6 +126,6 @@ class TestMain:
         _mock_run: MagicMock,
         mock_args: MagicMock,
     ) -> None:
-        mock_args.return_value = MagicMock(schedule=False, init=False)
+        mock_args.return_value = MagicMock(schedule=False, init=False, done=None, open=None)
         main()
         mock_handle.assert_called_once()

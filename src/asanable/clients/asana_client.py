@@ -34,6 +34,14 @@ class AsanaClient:
         raw_tasks = self._request_assigned_tasks()
         return [self._to_domain(task) for task in raw_tasks]
 
+    def complete_task(self, task_gid: str) -> None:
+        """Mark a task as completed."""
+        tasks_api = asana.TasksApi(self._api_client)
+        try:
+            tasks_api.update_task({"data": {"completed": True}}, task_gid)
+        except ApiException as error:
+            raise self._classify_api_error(error) from error
+
     def _request_assigned_tasks(self) -> list[dict]:
         """Call the Asana API to get assigned incomplete tasks."""
         tasks_api = asana.TasksApi(self._api_client)

@@ -3,6 +3,7 @@
 from asanable.constants import DigestSectionType
 from asanable.domain.digest import Digest, DigestItem, DigestSection, DigestSummary
 from asanable.domain.task import AsanaTask
+from asanable.infrastructure.clock import is_due_this_week, is_due_today
 from asanable.services.mapper_service import build_digest_items
 from asanable.services.priority_service import score_items
 
@@ -39,37 +40,18 @@ def _classify_item(item: DigestItem) -> DigestSectionType:
     """Determine which section an item belongs to."""
     if item.is_overdue:
         return DigestSectionType.OVERDUE
-    if _is_due_today(item):
+    if is_due_today(item.due_on):
         return DigestSectionType.TODAY
-    if _is_due_this_week(item):
+    if is_due_this_week(item.due_on):
         return DigestSectionType.THIS_WEEK
     return DigestSectionType.LATER
-
-
-def _is_due_today(item: DigestItem) -> bool:
-    """Check if item is due today."""
-    from asanable.infrastructure.clock import today
-
-    return item.due_on == today()
-
-
-def _is_due_this_week(item: DigestItem) -> bool:
-    """Check if item is due within the next 7 days."""
-    from datetime import timedelta
-
-    from asanable.infrastructure.clock import today
-
-    if item.due_on is None:
-        return False
-    now = today()
-    return now < item.due_on <= now + timedelta(days=7)
 
 
 def _build_summary(items: list[DigestItem]) -> DigestSummary:
     """Compute summary stats from scored items."""
     overdue_count = sum(1 for item in items if item.is_overdue)
-    today_count = sum(1 for item in items if _is_due_today(item))
-    this_week_count = sum(1 for item in items if _is_due_this_week(item))
+    today_count = sum(1 for item in items if is_due_today(item.due_on))
+    this_week_count = sum(1 for item in items if is_due_this_week(item.due_on))
     later_count = len(items) - overdue_count - today_count - this_week_count
     section_counts = _count_by_section(items)
     project_counts = _count_by_project(items)

@@ -13,6 +13,10 @@ def main() -> None:
     try:
         if args.init:
             _run_init()
+        elif args.done:
+            _mark_done(args.done)
+        elif args.open:
+            _open_task(args.open)
         elif args.schedule:
             _run_scheduler()
         else:
@@ -127,6 +131,21 @@ def _parse_args() -> argparse.Namespace:
         help="run as a daily scheduler",
     )
     parser.add_argument(
+        "-d",
+        "--done",
+        type=str,
+        metavar="GID",
+        default=None,
+        help="mark a task as completed by its Asana GID",
+    )
+    parser.add_argument(
+        "--open",
+        type=str,
+        metavar="GID",
+        default=None,
+        help="open a task in the browser by its Asana GID",
+    )
+    parser.add_argument(
         "--init",
         action="store_true",
         help="run interactive setup wizard",
@@ -183,6 +202,26 @@ def _filter_by_project(tasks: list, project_filter: str) -> list:
     """Keep only tasks whose project name matches the filter (case-insensitive)."""
     needle = project_filter.lower()
     return [t for t in tasks if t.project_name and needle in t.project_name.lower()]
+
+
+def _mark_done(task_gid: str) -> None:
+    """Mark a task as completed in Asana."""
+    from rich.console import Console
+
+    from asanable.clients.asana_client import AsanaClient
+    from asanable.config import Settings
+
+    client = AsanaClient(Settings())
+    client.complete_task(task_gid)
+    Console().print(f"[green]Task {task_gid} marked as done.[/]")
+
+
+def _open_task(task_gid: str) -> None:
+    """Open a task's permalink in the default browser."""
+    import webbrowser
+
+    url = f"https://app.asana.com/0/0/{task_gid}/f"
+    webbrowser.open(url)
 
 
 def _configure_logging() -> None:
