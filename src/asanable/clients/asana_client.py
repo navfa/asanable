@@ -38,7 +38,7 @@ class AsanaClient:
         """Mark a task as completed."""
         tasks_api = asana.TasksApi(self._api_client)
         try:
-            tasks_api.update_task({"data": {"completed": True}}, task_gid)
+            tasks_api.update_task({"data": {"completed": True}}, task_gid, {})
         except ApiException as error:
             raise self._classify_api_error(error) from error
 
