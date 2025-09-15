@@ -52,7 +52,6 @@ class AsanaClient:
                     "workspace": self._workspace_gid,
                     "completed_since": COMPLETED_SINCE_NOW,
                     "opt_fields": ",".join(TASK_OPT_FIELDS),
-                    "limit": 100,
                 },
             )
             return list(response)

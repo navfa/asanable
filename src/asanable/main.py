@@ -120,7 +120,7 @@ def _parse_args() -> argparse.Namespace:
         "-o",
         "--output",
         type=str,
-        choices=["cli", "html"],
+        choices=["cli", "html", "json"],
         default="cli",
         help="output format (default: cli)",
     )
@@ -165,6 +165,12 @@ def _render_digest(digest, args: argparse.Namespace) -> None:
         from asanable.renderers.html_renderer import render_html
 
         print(render_html(digest))
+        return
+
+    if args.output == "json":
+        from asanable.renderers.json_renderer import render_json
+
+        print(render_json(digest))
         return
 
     from asanable.renderers.cli_renderer import CliRenderer
