@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     # Digest
     digest_schedule_time: str = "08:00"
+    cache_ttl_hours: int = 24
 
     slack_webhook_url: str | None = None
 

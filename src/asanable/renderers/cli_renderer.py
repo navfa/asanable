@@ -7,8 +7,8 @@ from rich.text import Text
 
 from asanable.constants import (
     COLUMN_DUE,
+    COLUMN_GID,
     COLUMN_PROJECT,
-    COLUMN_SOURCE,
     COLUMN_TITLE,
     NO_DATE_LABEL,
     NO_PROJECT_LABEL,
@@ -91,10 +91,10 @@ def _append_counter(text: Text, label: str, count: int, active_style: str) -> No
 def _build_section_table(section: DigestSection, color: str) -> Table:
     """Build a rich Table for a section's items."""
     table = Table(show_header=True, header_style=f"bold {color}", box=None, pad_edge=False)
+    table.add_column(COLUMN_GID, style="dim", min_width=10)
     table.add_column(COLUMN_TITLE, style="bold", min_width=30)
     table.add_column(COLUMN_PROJECT, min_width=15)
     table.add_column(COLUMN_DUE, min_width=12)
-    table.add_column(COLUMN_SOURCE, min_width=8)
 
     for item in section.items:
         table.add_row(*_format_item_row(item, color))
@@ -103,11 +103,11 @@ def _build_section_table(section: DigestSection, color: str) -> Table:
 
 def _format_item_row(item: DigestItem, color: str) -> tuple[str, str, str, str]:
     """Format a single item as a table row."""
+    gid = item.asana_task_gid or ""
     title = _format_title(item, color)
     project = item.project_name or NO_PROJECT_LABEL
     due = _format_due_date(item)
-    source = item.source.value.capitalize()
-    return (title, project, due, source)
+    return (gid, title, project, due)
 
 
 def _format_title(item: DigestItem, color: str) -> str:

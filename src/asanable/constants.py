@@ -33,6 +33,7 @@ SECTION_STYLES: dict[str, dict[str, str]] = {
     "later": {"color": "dim", "title": "Later", "icon": " "},
 }
 
+COLUMN_GID = "GID"
 COLUMN_TITLE = "Title"
 COLUMN_PROJECT = "Project"
 COLUMN_DUE = "Due"

@@ -72,28 +72,32 @@ class TestFormatDueDate:
 
 
 class TestFormatItemRow:
-    def test_row_contains_title_project_due_source(self) -> None:
+    def test_row_contains_gid_title_project_due(self) -> None:
         item = _make_item(
             title="Ship feature",
             project_name="Backend",
             due_on=date(2025, 6, 20),
         )
         row = _format_item_row(item, "yellow")
-        assert row[0] == "Ship feature"
-        assert row[1] == "Backend"
-        assert row[2] == "Jun 20"
-        assert row[3] == "Asana"
+        assert row[1] == "Ship feature"
+        assert row[2] == "Backend"
+        assert row[3] == "Jun 20"
 
     def test_overdue_item_has_styled_title(self) -> None:
         item = _make_item(title="Late task", is_overdue=True)
         row = _format_item_row(item, "red")
-        assert "[bold red]" in row[0]
-        assert "Late task" in row[0]
+        assert "[bold red]" in row[1]
+        assert "Late task" in row[1]
 
     def test_missing_project_shows_dash(self) -> None:
         item = _make_item(project_name=None)
         row = _format_item_row(item, "blue")
-        assert row[1] == "-"
+        assert row[2] == "-"
+
+    def test_gid_is_first_column(self) -> None:
+        item = _make_item()
+        row = _format_item_row(item, "blue")
+        assert row[0] is not None
 
 
 class TestBuildSummaryLines:

@@ -35,7 +35,7 @@ def _run_digest(args: argparse.Namespace) -> None:
     if args.project:
         tasks = _filter_by_project(tasks, args.project)
     digest = build_digest(tasks)
-    if args.overdue or args.today:
+    if args.overdue or args.today or args.this_week:
         digest = _filter_sections(digest, args)
     _render_digest(digest, args)
 
@@ -44,15 +44,17 @@ def _resolve_tasks(settings, args: argparse.Namespace) -> list:
     """Fetch tasks from API or cache depending on flags."""
     from asanable.infrastructure.cache import load_tasks, save_tasks
 
+    ttl = settings.cache_ttl_hours
+
     if args.cache:
-        cached = load_tasks()
+        cached = load_tasks(ttl_hours=ttl)
         if cached is not None:
             return cached
         _print_warning("No cache available. Run without --cache first.")
         raise SystemExit(1)
 
     if not args.refresh:
-        cached = load_tasks()
+        cached = load_tasks(ttl_hours=ttl)
         if cached is not None:
             return cached
 
@@ -105,6 +107,12 @@ def _parse_args() -> argparse.Namespace:
         help="show only tasks due today",
     )
     parser.add_argument(
+        "--this-week",
+        action="store_true",
+        dest="this_week",
+        help="show only tasks due this week",
+    )
+    parser.add_argument(
         "-c",
         "--cache",
         action="store_true",
@@ -120,7 +128,7 @@ def _parse_args() -> argparse.Namespace:
         "-o",
         "--output",
         type=str,
-        choices=["cli", "html", "json"],
+        choices=["cli", "html", "json", "slack", "telegram"],
         default="cli",
         help="output format (default: cli)",
     )
@@ -173,6 +181,28 @@ def _render_digest(digest, args: argparse.Namespace) -> None:
         print(render_json(digest))
         return
 
+    if args.output == "slack":
+        from asanable.config import Settings
+        from asanable.renderers.slack_renderer import send_slack_digest
+
+        settings = Settings()
+        if not settings.slack_webhook_url:
+            _print_warning("SLACK_WEBHOOK_URL not set in .env")
+            raise SystemExit(1)
+        send_slack_digest(digest, settings.slack_webhook_url)
+        return
+
+    if args.output == "telegram":
+        from asanable.config import Settings
+        from asanable.renderers.telegram_renderer import send_telegram_digest
+
+        settings = Settings()
+        if not settings.telegram_bot_token or not settings.telegram_chat_id:
+            _print_warning("TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be set in .env")
+            raise SystemExit(1)
+        send_telegram_digest(digest, settings.telegram_bot_token, settings.telegram_chat_id)
+        return
+
     from asanable.renderers.cli_renderer import CliRenderer
 
     renderer = CliRenderer()
@@ -199,6 +229,8 @@ def _filter_sections(digest, args: argparse.Namespace):
         allowed.add(DigestSectionType.OVERDUE)
     if args.today:
         allowed.add(DigestSectionType.TODAY)
+    if args.this_week:
+        allowed.add(DigestSectionType.THIS_WEEK)
 
     filtered = tuple(s for s in digest.sections if s.section_type in allowed)
     return Digest(summary=digest.summary, sections=filtered)
