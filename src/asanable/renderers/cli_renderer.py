@@ -94,20 +94,22 @@ def _build_section_table(section: DigestSection, color: str) -> Table:
     table.add_column(COLUMN_GID, style="dim", min_width=10)
     table.add_column(COLUMN_TITLE, style="bold", min_width=30)
     table.add_column(COLUMN_PROJECT, min_width=15)
-    table.add_column(COLUMN_DUE, min_width=12)
+    table.add_column(COLUMN_DUE, min_width=10)
+    table.add_column("Tags", style="dim", min_width=10)
 
     for item in section.items:
         table.add_row(*_format_item_row(item, color))
     return table
 
 
-def _format_item_row(item: DigestItem, color: str) -> tuple[str, str, str, str]:
+def _format_item_row(item: DigestItem, color: str) -> tuple[str, str, str, str, str]:
     """Format a single item as a table row."""
     gid = item.asana_task_gid or ""
     title = _format_title(item, color)
     project = item.project_name or NO_PROJECT_LABEL
     due = _format_due_date(item)
-    return (gid, title, project, due)
+    tags = ", ".join(item.tags) if item.tags else ""
+    return (gid, title, project, due, tags)
 
 
 def _format_title(item: DigestItem, color: str) -> str:

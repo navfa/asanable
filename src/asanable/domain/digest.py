@@ -17,6 +17,7 @@ class DigestItem:
     project_name: str | None = None
     snippet: str | None = None
     asana_task_gid: str | None = None
+    tags: tuple[str, ...] = ()
     is_overdue: bool = False
     score: int = 0
 

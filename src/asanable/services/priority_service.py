@@ -27,6 +27,7 @@ def _apply_score(item: DigestItem) -> DigestItem:
         project_name=item.project_name,
         snippet=item.snippet,
         asana_task_gid=item.asana_task_gid,
+        tags=item.tags,
         is_overdue=item.is_overdue,
         score=_compute_score(item),
     )

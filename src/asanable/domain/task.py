@@ -16,6 +16,7 @@ class AsanaTask:
     project_name: str | None
     section_name: str | None
     permalink_url: str
+    tags: tuple[str, ...] = ()
 
     @property
     def is_overdue(self) -> bool:

@@ -16,6 +16,7 @@ dependencies = [
     "pydantic>=2.6.0",
     "structlog>=24.1.0",
     "schedule>=1.2.0",
+    "shtab>=1.7.0",
 ]
 
 [project.optional-dependencies]

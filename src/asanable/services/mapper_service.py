@@ -19,5 +19,6 @@ def _task_to_item(task: AsanaTask) -> DigestItem:
         due_on=task.due_on,
         project_name=task.project_name,
         asana_task_gid=task.gid,
+        tags=task.tags,
         is_overdue=task.is_overdue,
     )

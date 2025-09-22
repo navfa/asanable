@@ -10,6 +10,10 @@ def main() -> None:
     """Run the asanable daily digest."""
     _configure_logging()
     args = _parse_args()
+    if args.completions:
+        _print_completions(args.completions)
+        return
+
     try:
         if args.init:
             _run_init()
@@ -34,6 +38,8 @@ def _run_digest(args: argparse.Namespace) -> None:
     tasks = _resolve_tasks(settings, args)
     if args.project:
         tasks = _filter_by_project(tasks, args.project)
+    if args.tag:
+        tasks = _filter_by_tag(tasks, args.tag)
     digest = build_digest(tasks)
     if args.overdue or args.today or args.this_week:
         digest = _filter_sections(digest, args)
@@ -83,6 +89,12 @@ def _parse_args() -> argparse.Namespace:
         prog="asanable",
         description="Asana daily digest aggregator",
     )
+    _add_arguments(parser)
+    return parser.parse_args()
+
+
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add all CLI arguments to a parser."""
     parser.add_argument(
         "-q",
         "--quiet",
@@ -95,6 +107,13 @@ def _parse_args() -> argparse.Namespace:
         type=str,
         default=None,
         help="filter tasks by project name (case-insensitive substring match)",
+    )
+    parser.add_argument(
+        "-t",
+        "--tag",
+        type=str,
+        default=None,
+        help="filter tasks by tag name (case-insensitive substring match)",
     )
     parser.add_argument(
         "--overdue",
@@ -141,10 +160,11 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-d",
         "--done",
-        type=str,
-        metavar="GID",
+        nargs="?",
+        const="__interactive__",
         default=None,
-        help="mark a task as completed by its Asana GID",
+        metavar="GID",
+        help="mark a task as done (interactive if no GID provided)",
     )
     parser.add_argument(
         "--open",
@@ -164,7 +184,12 @@ def _parse_args() -> argparse.Namespace:
         action="version",
         version=f"%(prog)s {_get_version()}",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--completions",
+        choices=["bash", "zsh"],
+        default=None,
+        help="generate shell completions",
+    )
 
 
 def _render_digest(digest, args: argparse.Namespace) -> None:
@@ -242,8 +267,30 @@ def _filter_by_project(tasks: list, project_filter: str) -> list:
     return [t for t in tasks if t.project_name and needle in t.project_name.lower()]
 
 
+def _print_completions(shell: str) -> None:
+    """Generate and print shell completions."""
+    import shtab
+
+    parser = argparse.ArgumentParser(prog="asanable")
+    _add_arguments(parser)
+    print(shtab.complete(parser, shell))
+
+
+def _filter_by_tag(tasks: list, tag_filter: str) -> list:
+    """Keep only tasks that have a matching tag (case-insensitive)."""
+    needle = tag_filter.lower()
+    return [t for t in tasks if any(needle in tag.lower() for tag in t.tags)]
+
+
+INTERACTIVE_DONE = "__interactive__"
+
+
 def _mark_done(task_gid: str) -> None:
-    """Mark a task as completed in Asana."""
+    """Mark a task as done — interactive picker if no GID provided."""
+    if task_gid == INTERACTIVE_DONE:
+        _interactive_done()
+        return
+
     from rich.console import Console
 
     from asanable.clients.asana_client import AsanaClient
@@ -252,6 +299,52 @@ def _mark_done(task_gid: str) -> None:
     client = AsanaClient(Settings())
     client.complete_task(task_gid)
     Console().print(f"[green]Task {task_gid} marked as done.[/]")
+
+
+def _interactive_done() -> None:
+    """Show numbered task list and let user pick tasks to complete."""
+    from rich.console import Console
+
+    from asanable.clients.asana_client import AsanaClient
+    from asanable.config import Settings
+    from asanable.infrastructure.cache import load_tasks, save_tasks
+
+    settings = Settings()
+    tasks = load_tasks(ttl_hours=settings.cache_ttl_hours)
+    if tasks is None:
+        tasks = AsanaClient(settings).fetch_my_tasks()
+        save_tasks(tasks)
+
+    console = Console()
+    console.print("\n[bold]Tasks:[/]\n")
+    for i, task in enumerate(tasks, start=1):
+        due = task.due_on.strftime("%b %d") if task.due_on else ""
+        style = "bold red" if task.is_overdue else ""
+        console.print(f"  [{style}]{i:3}[/]  {task.name}  [dim]{due}[/]")
+
+    console.print()
+    choice = console.input("[bold]Mark as done (e.g. 1,3,5): [/]").strip()
+    if not choice:
+        return
+
+    indices = _parse_indices(choice, len(tasks))
+    client = AsanaClient(settings)
+    for idx in indices:
+        task = tasks[idx]
+        client.complete_task(task.gid)
+        console.print(f"  [green]Done:[/] {task.name}")
+
+
+def _parse_indices(choice: str, max_count: int) -> list[int]:
+    """Parse comma-separated numbers into zero-based indices."""
+    indices = []
+    for part in choice.split(","):
+        part = part.strip()
+        if part.isdigit():
+            idx = int(part) - 1
+            if 0 <= idx < max_count:
+                indices.append(idx)
+    return indices
 
 
 def _open_task(task_gid: str) -> None:

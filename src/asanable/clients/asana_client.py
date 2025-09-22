@@ -16,6 +16,7 @@ TASK_OPT_FIELDS = [
     "permalink_url",
     "memberships.section.name",
     "memberships.project.name",
+    "tags.name",
 ]
 
 ASSIGNEE_ME = "me"
@@ -64,6 +65,8 @@ class AsanaClient:
         section_name = self._extract_section_name(raw)
         due_on = self._parse_due_date(raw.get("due_on"))
 
+        tags = self._extract_tags(raw)
+
         return AsanaTask(
             gid=raw["gid"],
             name=raw["name"],
@@ -71,6 +74,7 @@ class AsanaClient:
             project_name=project_name,
             section_name=section_name,
             permalink_url=raw.get("permalink_url", ""),
+            tags=tags,
         )
 
     @staticmethod
@@ -97,6 +101,12 @@ class AsanaClient:
             return None
         section = memberships[0].get("section", {})
         return section.get("name")
+
+    @staticmethod
+    def _extract_tags(raw: dict) -> tuple[str, ...]:
+        """Extract tag names from the task."""
+        tags = raw.get("tags", [])
+        return tuple(tag.get("name", "") for tag in tags if tag.get("name"))
 
     @staticmethod
     def _parse_due_date(due_on_str: str | None) -> date | None:
