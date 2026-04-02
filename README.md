@@ -4,19 +4,42 @@ Prioritized daily digest for your Asana tasks — overdue, today, this week — 
 
 ![asanable screenshot](public/screenshots/screen.png)
 
+## Installation
+
+```bash
+pip install asanable
+```
+
 ## Features
 
 - Fetch incomplete Asana tasks assigned to you, sorted by due date
 - Score and prioritize: overdue > today > this week > later
-- Rich CLI output with colored sections and summary
+- Rich CLI output with colored sections and project summary
+- Mark tasks as done directly from the terminal
+- Open tasks in the browser
+- Local cache for instant offline access
+- Filter by project or section (overdue, today)
+- Export as HTML
 - Optional: daily scheduler, Slack and Telegram notifications
 
-## Setup
+## Quick Start
+
+```bash
+# Install
+pip install asanable
+
+# Interactive setup (creates .env with your token and workspace)
+asanable --init
+
+# Run your first digest
+asanable
+```
+
+## Setup (manual)
 
 ```bash
 git clone https://github.com/navfa/asanable.git && cd asanable
 cp .env.example .env
-python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
@@ -52,6 +75,12 @@ asanable --today
 
 # Export as HTML
 asanable --output html > digest.html
+
+# Mark a task as done
+asanable --done 1234567890
+
+# Open a task in the browser
+asanable --open 1234567890
 
 # Combine flags
 asanable -p mobile -q
