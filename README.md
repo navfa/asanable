@@ -7,6 +7,10 @@ Prioritized daily digest for your Asana tasks — overdue, today, this week — 
 ## Installation
 
 ```bash
+# Recommended (isolated, available globally)
+pipx install asanable
+
+# Or with pip
 pip install asanable
 ```
 
